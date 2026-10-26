@@ -5,7 +5,7 @@ var PETS = [
     description: "Milo is a soft-hearted cat who enjoys sunny shelves and quiet company. He would love a calm home where he can settle in at his own pace."
   },
   {
-    id: "p2", name: "Luna", species: "Cat", breed: "British Shorthair", age: "1 year", sex: "Female", size: "Medium",
+    id: "p2", name: "Luna", species: "Cat", breed: "British Longhair", age: "1 year", sex: "Female", size: "Medium",
     temperament: "Curious, playful and people-friendly", health: "Vaccinated and desexed", vaccination: "F3 vaccination up to date (booster due May 2027)", shelter: "Harbour Paws Rescue", suburb: "Surry Hills", status: "Available", photo: "images/p2.jpg",
     description: "Luna loves a gentle game and a cosy nap beside her people. She is ready to bring plenty of personality to her new family."
   },

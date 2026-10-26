@@ -24,4 +24,4 @@ This is a prototype. Accounts, passwords and the login session are stored in the
 
 ## Photos
 
-The photos of Sunny, Daisy and Pip are used with the permission of their owners.
+The photos of Luna, Sunny, Daisy, Archie and Pip are used with the permission of their owners.
