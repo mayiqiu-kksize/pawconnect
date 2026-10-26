@@ -17,7 +17,11 @@ This is a prototype. Accounts, passwords and the login session are stored in the
 
 - index.html – home
 - browse.html – pets available for adoption (browse.html?demo=empty shows the empty state)
-- pet.html?id=p1 … p6 – pet profiles with the adoption application form
+- pet.html?id=p1 … p6 – pet profiles with photo gallery, vaccination details and the adoption application form (Sunny p3 and Daisy p4 have several photos)
 - login.html, account.html, staff.html – log in, adopter account, staff area
 - signup.html – create a new adopter account (US16); the new account is saved in this browser and logged in straight away
 - privacy.html – Privacy Policy (linked from the application form and the footer)
+
+## Photos
+
+The photos of Sunny, Daisy and Pip are used with the permission of their owners.

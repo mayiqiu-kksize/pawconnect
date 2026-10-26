@@ -28,10 +28,31 @@
         return;
       }
       window.pet = pet;
-      var fields = [['Species', pet.species], ['Breed', pet.breed], ['Age', pet.age], ['Sex', pet.sex], ['Size', pet.size], ['Temperament', pet.temperament], ['Health notes', pet.health], ['Shelter', pet.shelter], ['Suburb', pet.suburb]];
+      var fields = [['Species', pet.species], ['Breed', pet.breed], ['Age', pet.age], ['Sex', pet.sex], ['Size', pet.size], ['Temperament', pet.temperament], ['Health notes', pet.health], ['Vaccinations', pet.vaccination || 'Ask the shelter for vaccination details'], ['Shelter', pet.shelter], ['Shelter suburb', pet.suburb]];
       var details = fields.map(function (field) { return '<div><dt>' + field[0] + '</dt><dd>' + field[1] + '</dd></div>'; }).join('');
-      content.innerHTML = '<a class="back-link" href="browse.html">← Back to pets</a><article class="profile"><img class="profile-photo" alt="' + pet.name + '" src="' + pet.photo + '"><div><div class="profile-heading"><h1>' + pet.name + '</h1><span class="status status-' + pet.status.toLowerCase() + '">' + pet.status + '</span></div><dl class="details">' + details + '</dl><p class="description">' + pet.description + '</p><div id="apply-area"></div></div></article>';
-      content.querySelector('img').onerror = function () { placeholder(this, pet.name); };
+
+      // US7: photo gallery – main photo plus a thumbnail for each extra photo.
+      var photos = pet.photos && pet.photos.length ? pet.photos : [pet.photo];
+      var thumbs = photos.length > 1 ? '<div class="gallery-thumbs" role="group" aria-label="More photos of ' + pet.name + '">' + photos.map(function (src, i) {
+        return '<button type="button" class="gallery-thumb" data-index="' + i + '" aria-label="Show photo ' + (i + 1) + ' of ' + photos.length + '"' + (i === 0 ? ' aria-current="true"' : '') + '><img src="' + src + '" alt=""></button>';
+      }).join('') + '</div>' : '';
+      var counter = photos.length > 1 ? '<p class="gallery-counter" id="gallery-counter">Photo 1 of ' + photos.length + '</p>' : '';
+      var gallery = '<div class="gallery"><img class="profile-photo" id="main-photo" alt="' + pet.name + ' – photo 1 of ' + photos.length + '" src="' + photos[0] + '">' + counter + thumbs + '</div>';
+
+      content.innerHTML = '<a class="back-link" href="browse.html">← Back to pets</a><article class="profile">' + gallery + '<div><div class="profile-heading"><h1>' + pet.name + '</h1><span class="status status-' + pet.status.toLowerCase() + '">' + pet.status + '</span></div><dl class="details">' + details + '</dl><p class="description">' + pet.description + '</p><div id="apply-area"></div></div></article>';
+
+      var main = document.getElementById('main-photo');
+      main.onerror = function () { placeholder(this, pet.name); };
+      content.querySelectorAll('.gallery-thumb').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var i = Number(button.getAttribute('data-index'));
+          main.src = photos[i];
+          main.alt = pet.name + ' – photo ' + (i + 1) + ' of ' + photos.length;
+          document.getElementById('gallery-counter').textContent = 'Photo ' + (i + 1) + ' of ' + photos.length;
+          content.querySelectorAll('.gallery-thumb').forEach(function (other) { other.removeAttribute('aria-current'); });
+          button.setAttribute('aria-current', 'true');
+        });
+      });
     }());
   </script>
   <script src="apply-area.js"></script>
