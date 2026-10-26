@@ -88,3 +88,8 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .policy { max-width: 820px; }
 .policy .panel ul { margin: 0; padding-left: 1.2rem; }
 .policy .panel p { margin: .6rem 0 0; }
+
+/* Sign up (US16) */
+.auth-switch { margin: 1.25rem 0 0; color: var(--muted); }
+.auth-switch a { font-weight: 700; }
+#signup-message:empty { display: none; }

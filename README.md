@@ -19,4 +19,5 @@ This is a prototype. Accounts, passwords and the login session are stored in the
 - browse.html – pets available for adoption (browse.html?demo=empty shows the empty state)
 - pet.html?id=p1 … p6 – pet profiles with the adoption application form
 - login.html, account.html, staff.html – log in, adopter account, staff area
+- signup.html – create a new adopter account (US16); the new account is saved in this browser and logged in straight away
 - privacy.html – Privacy Policy (linked from the application form and the footer)

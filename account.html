@@ -20,7 +20,9 @@
       if (!user) return;
       var esc = PawAuth.escapeHtml;
       var content = document.getElementById('account-content');
+      var isNew = new URLSearchParams(window.location.search).get('welcome') === 'new';
       content.innerHTML =
+        (isNew ? '<p class="notice" id="welcome-notice">Your account has been created and you are now logged in.</p>' : '') +
         '<h1>Welcome, ' + esc(user.name) + '</h1>' +
         '<section class="panel"><h2>Account details</h2>' +
         '<dl class="details"><div><dt>Name</dt><dd>' + esc(user.name) + '</dd></div>' +

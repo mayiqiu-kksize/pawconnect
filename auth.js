@@ -72,6 +72,25 @@
     try { localStorage.removeItem(SESSION_KEY); } catch (error) { /* ignore */ }
   }
 
+  // US16: create an adopter account and log the new user in.
+  // Returns { user } on success or { error: 'exists' } if the email is taken.
+  function register(name, email, password) {
+    var address = normaliseEmail(email);
+    var users = getUsers();
+    if (users.some(function (item) { return item.email === address; })) {
+      return { error: 'exists' };
+    }
+    var user = { email: address, password: password, name: String(name).trim(), role: 'adopter', createdAt: new Date().toISOString() };
+    users.push(user);
+    saveUsers(users);
+    write(SESSION_KEY, { email: user.email, loggedInAt: new Date().toISOString() });
+    return { user: publicUser(user) };
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normaliseEmail(email));
+  }
+
   function escapeHtml(text) {
     return String(text == null ? '' : text).replace(/[&<>"']/g, function (ch) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
@@ -106,6 +125,10 @@
       loginLink.href = 'login.html';
       loginLink.textContent = 'Log in';
       nav.appendChild(loginLink);
+      var signupLink = document.createElement('a');
+      signupLink.href = 'signup.html';
+      signupLink.textContent = 'Sign up';
+      nav.appendChild(signupLink);
       return;
     }
     var home = document.createElement('a');
@@ -130,6 +153,8 @@
     getCurrentUser: getCurrentUser,
     login: login,
     logout: logout,
+    register: register,
+    isValidEmail: isValidEmail,
     requireLogin: requireLogin,
     landingPage: landingPage,
     normaliseEmail: normaliseEmail,

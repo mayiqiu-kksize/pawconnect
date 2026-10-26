@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up | PawConnect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="logo" href="index.html">PawConnect</a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="browse.html">Browse Pets</a></nav>
+  </div></header>
+  <main>
+    <section class="auth-panel" aria-labelledby="signup-title">
+      <h1 id="signup-title">Create an account</h1>
+      <p class="muted">Create an adopter account to keep your applications and enquiries together.</p>
+      <p id="signup-message" class="form-error" role="alert"></p>
+      <form id="signup-form" class="application-form" novalidate>
+        <label for="name">Name
+          <input id="name" name="name" type="text" autocomplete="name">
+          <span class="field-error" id="name-error"></span>
+        </label>
+        <label for="email">Email
+          <input id="email" name="email" type="email" autocomplete="email">
+          <span class="field-error" id="email-error"></span>
+        </label>
+        <label for="password">Password (at least 8 characters)
+          <input id="password" name="password" type="password" autocomplete="new-password">
+          <span class="field-error" id="password-error"></span>
+        </label>
+        <button class="button" type="submit">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="login.html">Log in</a></p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      var current = PawAuth.getCurrentUser();
+      if (current) {
+        window.location.replace(PawAuth.landingPage(current));
+        return;
+      }
+
+      var form = document.getElementById('signup-form');
+      var message = document.getElementById('signup-message');
+      function setError(name, text) { document.getElementById(name + '-error').textContent = text; }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        message.innerHTML = '';
+        ['name', 'email', 'password'].forEach(function (name) { setError(name, ''); });
+
+        var name = form.elements.name.value.trim();
+        var email = form.elements.email.value.trim();
+        var password = form.elements.password.value;
+        var valid = true;
+        if (!name) { setError('name', 'Please enter your name.'); valid = false; }
+        if (!PawAuth.isValidEmail(email)) { setError('email', 'Please enter a valid email address.'); valid = false; }
+        if (password.length < 8) { setError('password', 'Password must be at least 8 characters.'); valid = false; }
+        if (!valid) return;
+
+        var result = PawAuth.register(name, email, password);
+        if (result.error === 'exists') {
+          message.innerHTML = 'An account with this email already exists. Please <a href="login.html">log in</a> instead.';
+          return;
+        }
+        window.location.href = 'account.html?welcome=new';
+      });
+    }());
+  </script>
+</body>
+</html>
