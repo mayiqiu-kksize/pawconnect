@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Browse Pets | PawConnect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="logo" href="index.html">PawConnect</a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="browse.html">Browse Pets</a></nav>
+  </div></header>
+  <main><h1>Pets available for adoption</h1><div id="pet-list" class="pet-grid"></div></main>
+  <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10</div></footer>
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      var list = document.getElementById('pet-list');
+      var isEmptyDemo = new URLSearchParams(window.location.search).get('demo') === 'empty';
+      var pets = isEmptyDemo ? [] : PETS.filter(function (pet) { return pet.status !== 'Adopted'; });
+      function badgeClass(status) { return 'status-' + status.toLowerCase(); }
+      function placeholder(image, name) {
+        image.onerror = null;
+        image.replaceWith(Object.assign(document.createElement('div'), { className: 'pet-card-image-placeholder', textContent: name }));
+      }
+      if (!pets.length) {
+        list.className = '';
+        list.innerHTML = '<div class="empty-state">No pets are currently available for adoption. Please check back soon.</div>';
+        return;
+      }
+      pets.forEach(function (pet) {
+        var card = document.createElement('a');
+        card.className = 'pet-card'; card.href = 'pet.html?id=' + encodeURIComponent(pet.id);
+        card.innerHTML = '<img alt="' + pet.name + '" src="' + pet.photo + '"><div class="card-content"><div class="card-top"><h2>' + pet.name + '</h2><span class="status ' + badgeClass(pet.status) + '">' + pet.status + '</span></div><p>' + pet.species + ' · ' + pet.breed + '<br>' + pet.age + ' · ' + pet.suburb + '</p></div>';
+        card.querySelector('img').onerror = function () { placeholder(this, pet.name); };
+        list.appendChild(card);
+      });
+    }());
+  </script>
+</body>
+</html>

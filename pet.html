@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pet Profile | PawConnect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="logo" href="index.html">PawConnect</a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="browse.html">Browse Pets</a></nav>
+  </div></header>
+  <main id="profile-content"></main>
+  <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10</div></footer>
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      var content = document.getElementById('profile-content');
+      var id = new URLSearchParams(window.location.search).get('id');
+      var pet = PETS.find(function (item) { return item.id === id; });
+      function placeholder(image, name) {
+        image.onerror = null;
+        image.replaceWith(Object.assign(document.createElement('div'), { className: 'profile-photo pet-card-image-placeholder', textContent: name }));
+      }
+      if (!pet) {
+        content.innerHTML = '<div class="empty-state"><h1>Pet not found</h1><p>We could not find that pet profile.</p><a class="button" href="browse.html">Back to pets</a></div>';
+        return;
+      }
+      window.pet = pet;
+      var fields = [['Species', pet.species], ['Breed', pet.breed], ['Age', pet.age], ['Sex', pet.sex], ['Size', pet.size], ['Temperament', pet.temperament], ['Health notes', pet.health], ['Shelter', pet.shelter], ['Suburb', pet.suburb]];
+      var details = fields.map(function (field) { return '<div><dt>' + field[0] + '</dt><dd>' + field[1] + '</dd></div>'; }).join('');
+      content.innerHTML = '<a class="back-link" href="browse.html">← Back to pets</a><article class="profile"><img class="profile-photo" alt="' + pet.name + '" src="' + pet.photo + '"><div><div class="profile-heading"><h1>' + pet.name + '</h1><span class="status status-' + pet.status.toLowerCase() + '">' + pet.status + '</span></div><dl class="details">' + details + '</dl><p class="description">' + pet.description + '</p><div id="apply-area"></div></div></article>';
+      content.querySelector('img').onerror = function () { placeholder(this, pet.name); };
+    }());
+  </script>
+  <script src="apply-area.js"></script>
+</body>
+</html>
