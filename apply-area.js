@@ -62,6 +62,32 @@
       label.appendChild(error);
       form.appendChild(label);
     });
+    // US19: privacy notice and consent, shown above the Submit button
+    var notice = document.createElement('p');
+    notice.className = 'privacy-notice';
+    notice.id = 'privacy-notice';
+    notice.appendChild(document.createTextNode('Privacy: we use your details only to process this adoption application. They are shared only with ' + pet.shelter + ' and never sold. '));
+    var policyLink = document.createElement('a');
+    policyLink.href = 'privacy.html';
+    policyLink.target = '_blank';
+    policyLink.rel = 'noopener';
+    policyLink.textContent = 'Read our Privacy Policy';
+    notice.appendChild(policyLink);
+    notice.appendChild(document.createTextNode('.'));
+    form.appendChild(notice);
+
+    var consentLabel = document.createElement('label');
+    consentLabel.className = 'consent';
+    consentLabel.htmlFor = 'consent';
+    var consentBox = document.createElement('input');
+    consentBox.type = 'checkbox'; consentBox.id = 'consent'; consentBox.name = 'consent';
+    consentLabel.appendChild(consentBox);
+    consentLabel.appendChild(document.createTextNode(' I agree to PawConnect collecting and using my personal information as described in the Privacy Policy. *'));
+    form.appendChild(consentLabel);
+    var consentError = document.createElement('span');
+    consentError.className = 'field-error'; consentError.id = 'consent-error';
+    form.appendChild(consentError);
+
     var submit = document.createElement('button');
     submit.className = 'button'; submit.type = 'submit'; submit.textContent = 'Submit application';
     form.appendChild(submit);
@@ -75,13 +101,20 @@
         if (!input.value.trim()) { error.textContent = 'This field is required.'; valid = false; }
         else if (field.name === 'email' && !input.validity.valid) { error.textContent = 'Enter a valid email address.'; valid = false; }
       });
+      consentError.textContent = '';
+      if (!consentBox.checked) {
+        consentError.textContent = 'Please tick the box to give your consent before submitting.';
+        valid = false;
+      }
       if (!valid) return;
       var applications = getApplications();
       var application = {
         id: 'APP-' + String(Date.now()).slice(-6),
         petId: pet.id,
         petName: pet.name,
-        applicant: form.elements.fullName.value.trim()
+        applicant: form.elements.fullName.value.trim(),
+        consentGiven: true,
+        consentAt: new Date().toISOString()
       };
       applications.push(application);
       saveApplications(applications);
