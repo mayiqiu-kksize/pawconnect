@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff area | PawConnect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="logo" href="index.html">PawConnect</a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="browse.html">Browse Pets</a></nav>
+  </div></header>
+  <main id="staff-content"></main>
+  <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10</div></footer>
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      var user = PawAuth.requireLogin('staff');
+      if (!user) return;
+      var esc = PawAuth.escapeHtml;
+      var content = document.getElementById('staff-content');
+      content.innerHTML =
+        '<h1>Staff area – ' + esc(user.shelter) + '</h1>' +
+        '<p>Welcome, ' + esc(user.name) + '.</p>' +
+        '<div class="steps staff-tools">' +
+        '<article><h3>Manage pet listings</h3><p>Add new pets and update their details and availability.</p><p class="muted">Coming soon</p></article>' +
+        '<article><h3>Adoption applications</h3><p>Review applications submitted to your shelter and update their status.</p><p class="muted">Coming soon</p></article>' +
+        '</div>';
+    }());
+  </script>
+</body>
+</html>
