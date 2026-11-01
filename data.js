@@ -33,5 +33,28 @@ var PETS = [
   }
 ];
 
+// US3: pets added or edited by shelter staff are saved in this browser and replace the demo list,
+// so Browse Pets and the pet profiles always show the latest details.
+var PET_STORE_KEY = 'pawconnectPets';
+var NO_PHOTO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450"><rect width="100%" height="100%" fill="#dceff7"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="28" fill="#17324d">Photo coming soon</text></svg>');
+try {
+  var savedPets = JSON.parse(localStorage.getItem(PET_STORE_KEY) || 'null');
+  if (Array.isArray(savedPets) && savedPets.length) PETS = savedPets;
+} catch (error) { /* keep the demo list */ }
+
+function savePets(list) {
+  localStorage.setItem(PET_STORE_KEY, JSON.stringify(list));
+}
+
 // US7: every pet has a photo list for the profile gallery; the first photo is also used on Browse Pets.
-PETS.forEach(function (pet) { if (!pet.photos || !pet.photos.length) pet.photos = [pet.photo]; });
+PETS.forEach(function (pet) {
+  if (!pet.photo) pet.photo = NO_PHOTO;
+  if (!pet.photos || !pet.photos.length) pet.photos = [pet.photo];
+});
+
+// Text typed by staff is shown as plain text on the public pages.
+function escapeText(text) {
+  return String(text == null ? '' : text).replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}

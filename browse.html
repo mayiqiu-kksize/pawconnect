@@ -32,7 +32,8 @@
       pets.forEach(function (pet) {
         var card = document.createElement('a');
         card.className = 'pet-card'; card.href = 'pet.html?id=' + encodeURIComponent(pet.id);
-        card.innerHTML = '<img alt="' + pet.name + '" src="' + pet.photo + '"><div class="card-content"><div class="card-top"><h2>' + pet.name + '</h2><span class="status ' + badgeClass(pet.status) + '">' + pet.status + '</span></div><p>' + pet.species + ' · ' + pet.breed + '<br>' + pet.age + ' · ' + pet.suburb + '</p></div>';
+        var e = escapeText;
+        card.innerHTML = '<img alt="' + e(pet.name) + '" src="' + e(pet.photo) + '"><div class="card-content"><div class="card-top"><h2>' + e(pet.name) + '</h2><span class="status ' + badgeClass(pet.status) + '">' + e(pet.status) + '</span></div><p>' + e(pet.species) + ' · ' + e(pet.breed) + '<br>' + e(pet.age) + ' · ' + e(pet.suburb) + '</p></div>';
         card.querySelector('img').onerror = function () { placeholder(this, pet.name); };
         list.appendChild(card);
       });

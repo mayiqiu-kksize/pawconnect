@@ -116,3 +116,22 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .staff-tools h3 a { color: var(--navy); }
 .staff-tools.steps { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 640px) { .staff-tools.steps { grid-template-columns: 1fr; } }
+
+/* US3: staff pet listings */
+.page-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.page-heading h1 { margin: 0; }
+.page-heading .button { margin-top: 0; }
+.table-wrap { overflow-x: auto; margin-top: 1.25rem; border: 1px solid #dce3e7; border-radius: 12px; background: #fff; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: .75rem 1rem; border-bottom: 1px solid #e6ecef; text-align: left; vertical-align: middle; }
+.data-table th { color: var(--muted); font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table a { font-weight: 700; }
+.table-action { white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.application-form select { width: 100%; padding: .65rem; border: 1px solid #aebbc4; border-radius: 6px; background: #fff; color: var(--ink); font: inherit; }
+.pet-form { grid-template-columns: repeat(2, 1fr); column-gap: 1.25rem; max-width: 820px; }
+.pet-form label:has(textarea), .pet-form label[for="pet-photo"], .pet-form .form-error, .pet-form .button { grid-column: 1 / -1; }
+.pet-form .button { justify-self: start; border: 0; font: inherit; font-weight: 700; cursor: pointer; }
+.pet-form [aria-invalid="true"] { border-color: #a52121; }
+@media (max-width: 640px) { .pet-form { grid-template-columns: 1fr; } }

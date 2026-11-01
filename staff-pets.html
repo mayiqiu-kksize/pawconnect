@@ -13,14 +13,140 @@
   </div></header>
   <main id="staff-content"></main>
   <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="data.js"></script>
   <script src="auth.js"></script>
   <script>
     (function () {
       var user = PawAuth.requireStaff();
       if (!user) return;
-      var esc = PawAuth.escapeHtml;
-      document.getElementById('staff-content').innerHTML = '<h1>Pet listings – ' + esc(user.shelter) + '</h1>' +
-        '<p class="muted">Adding and editing pets is being built in Sprint 2 (US3).</p>';
+      var e = escapeText;
+      var content = document.getElementById('staff-content');
+      var params = new URLSearchParams(window.location.search);
+
+      // US3: the fields every listing must have. Photo is optional until US10 adds photo uploads.
+      var FIELDS = [
+        { name: 'name', label: 'Name', type: 'text' },
+        { name: 'species', label: 'Species', type: 'select', options: ['Dog', 'Cat', 'Other'] },
+        { name: 'breed', label: 'Breed', type: 'text' },
+        { name: 'age', label: 'Age (e.g. 2 years)', type: 'text' },
+        { name: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female'] },
+        { name: 'size', label: 'Size', type: 'select', options: ['Small', 'Medium', 'Large'] },
+        { name: 'temperament', label: 'Temperament', type: 'text' },
+        { name: 'health', label: 'Health notes', type: 'text' },
+        { name: 'vaccination', label: 'Vaccinations', type: 'text' },
+        { name: 'suburb', label: 'Shelter suburb', type: 'text' },
+        { name: 'status', label: 'Status', type: 'select', options: ['Available', 'Reserved', 'Adopted'] },
+        { name: 'description', label: 'Description', type: 'textarea' }
+      ];
+
+      function ownPets() {
+        return PETS.filter(function (pet) { return pet.shelter === user.shelter; });
+      }
+
+      function nextId() {
+        var max = PETS.reduce(function (top, pet) {
+          var n = parseInt(String(pet.id).replace(/\D/g, ''), 10);
+          return isNaN(n) ? top : Math.max(top, n);
+        }, 0);
+        return 'p' + (max + 1);
+      }
+
+      function showList(message) {
+        var rows = ownPets().map(function (pet) {
+          return '<tr><td><a href="pet.html?id=' + encodeURIComponent(pet.id) + '">' + e(pet.name) + '</a></td>' +
+            '<td>' + e(pet.species) + '</td><td>' + e(pet.breed) + '</td><td>' + e(pet.age) + '</td>' +
+            '<td><span class="status status-' + e(pet.status).toLowerCase() + '">' + e(pet.status) + '</span></td>' +
+            '<td><a class="table-action" href="staff-pets.html?edit=' + encodeURIComponent(pet.id) + '">Edit</a></td></tr>';
+        }).join('');
+        content.innerHTML =
+          (message ? '<p class="notice" id="save-notice" role="status">' + e(message) + '</p>' : '') +
+          '<div class="page-heading"><h1>Pet listings – ' + e(user.shelter) + '</h1>' +
+          '<a class="button" href="staff-pets.html?new=1">Add a new pet</a></div>' +
+          '<p class="muted">Changes appear straight away on Browse Pets and on each pet\'s profile. Pets marked Adopted no longer accept applications.</p>' +
+          (rows ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Species</th><th>Breed</th><th>Age</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+                : '<div class="empty-state">Your shelter has no pets listed yet.</div>');
+      }
+
+      function fieldHtml(field, value) {
+        var id = 'pet-' + field.name;
+        var control;
+        if (field.type === 'select') {
+          control = '<select id="' + id + '" name="' + field.name + '"><option value="">Choose…</option>' +
+            field.options.map(function (option) {
+              return '<option' + (option === value ? ' selected' : '') + '>' + option + '</option>';
+            }).join('') + '</select>';
+        } else if (field.type === 'textarea') {
+          control = '<textarea id="' + id + '" name="' + field.name + '">' + e(value) + '</textarea>';
+        } else {
+          control = '<input id="' + id + '" name="' + field.name + '" type="text" value="' + e(value) + '">';
+        }
+        return '<label for="' + id + '">' + field.label + ' *' + control + '<span class="field-error" id="' + id + '-error"></span></label>';
+      }
+
+      function showForm(pet) {
+        var isNew = !pet;
+        pet = pet || { status: 'Available' };
+        content.innerHTML =
+          '<a class="back-link" href="staff-pets.html">← Back to pet listings</a>' +
+          '<h1>' + (isNew ? 'Add a new pet' : 'Edit ' + e(pet.name)) + '</h1>' +
+          '<p class="muted">Shelter: ' + e(user.shelter) + '. Fields marked * are required.</p>' +
+          '<form id="pet-form" class="application-form pet-form" novalidate>' +
+          FIELDS.map(function (field) { return fieldHtml(field, pet[field.name] || ''); }).join('') +
+          '<label for="pet-photo">Photo link (optional)<input id="pet-photo" name="photo" type="text" value="' + e(pet.photo && pet.photo.indexOf('data:') !== 0 ? pet.photo : '') + '" placeholder="images/p1.jpg"></label>' +
+          '<p class="form-error" id="pet-form-error" role="alert"></p>' +
+          '<button class="button" type="submit">Save</button></form>';
+
+        var form = document.getElementById('pet-form');
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+          var valid = true;
+          var values = {};
+          FIELDS.forEach(function (field) {
+            var input = form.elements[field.name];
+            var error = document.getElementById('pet-' + field.name + '-error');
+            values[field.name] = input.value.trim();
+            error.textContent = values[field.name] ? '' : 'This field is required.';
+            input.setAttribute('aria-invalid', values[field.name] ? 'false' : 'true');
+            if (!values[field.name]) valid = false;
+          });
+          var formError = document.getElementById('pet-form-error');
+          if (!valid) {
+            formError.textContent = 'Please complete the required fields. The listing has not been saved.';
+            var firstInvalid = form.querySelector('[aria-invalid="true"]');
+            if (firstInvalid) firstInvalid.focus();
+            return;
+          }
+          formError.textContent = '';
+
+          var photo = form.elements.photo.value.trim();
+          var saved;
+          if (isNew) {
+            saved = Object.assign({ id: nextId(), shelter: user.shelter }, values);
+            saved.photo = photo || NO_PHOTO;
+            saved.photos = [saved.photo];
+            PETS.push(saved);
+          } else {
+            saved = PETS.find(function (item) { return item.id === pet.id; });
+            Object.assign(saved, values);
+            if (photo && photo !== saved.photo) { saved.photo = photo; saved.photos = [photo]; }
+          }
+          savePets(PETS);
+          var message = saved.name + (isNew ? ' has been added' : ' has been updated') + ' and is shown as ' + saved.status + ' on Browse Pets and the pet profile.';
+          if (saved.status === 'Adopted') message = saved.name + ' has been saved as Adopted. The pet no longer appears on Browse Pets and new applications are blocked.';
+          history.replaceState(null, '', 'staff-pets.html');
+          showList(message);
+        });
+      }
+
+      var editId = params.get('edit');
+      if (editId) {
+        var pet = ownPets().find(function (item) { return item.id === editId; });
+        if (pet) { showForm(pet); return; }
+        showList('That pet could not be found for your shelter.');
+        return;
+      }
+      if (params.get('new')) { showForm(null); return; }
+      showList('');
     }());
   </script>
 </body>
