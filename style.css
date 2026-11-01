@@ -104,3 +104,15 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .gallery-thumb:hover, .gallery-thumb:focus-visible { border-color: #9baab5; }
 .gallery-thumb[aria-current="true"] { border-color: var(--navy); }
 @media (max-width: 640px) { .gallery .profile-photo { height: 340px; } .gallery-thumb { width: 64px; height: 64px; } }
+
+/* US18: staff menu and access denied */
+.staff-menu { background: #eef4f7; border-bottom: 1px solid #dce3e7; }
+.staff-menu-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; width: min(1100px, calc(100% - 2rem)); margin: 0 auto; padding: .6rem 0; }
+.staff-menu-label { padding: .15rem .55rem; border-radius: 999px; background: var(--navy); color: #fff; font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.staff-menu a { color: var(--navy); font-weight: 700; }
+.staff-menu a[aria-current="page"] { text-decoration: underline; text-underline-offset: .3em; }
+.access-denied h1 { color: var(--navy); }
+.access-denied .button { margin-top: .5rem; }
+.staff-tools h3 a { color: var(--navy); }
+.staff-tools.steps { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 640px) { .staff-tools.steps { grid-template-columns: 1fr; } }

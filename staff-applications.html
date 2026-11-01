@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adoption applications | PawConnect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="logo" href="index.html">PawConnect</a>
+    <nav class="site-nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="browse.html">Browse Pets</a></nav>
+  </div></header>
+  <main id="staff-content"></main>
+  <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      var user = PawAuth.requireStaff();
+      if (!user) return;
+      var esc = PawAuth.escapeHtml;
+      document.getElementById('staff-content').innerHTML = '<h1>Adoption applications – ' + esc(user.shelter) + '</h1>' +
+        '<p class="muted">Reviewing applications is being built in Sprint 2 (US4).</p>';
+    }());
+  </script>
+</body>
+</html>

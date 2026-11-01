@@ -40,6 +40,7 @@
   <script src="auth.js"></script>
   <script>
     (function () {
+      var next = PawAuth.safeNext(new URLSearchParams(window.location.search).get('next'));
       var current = PawAuth.getCurrentUser();
       if (current) {
         window.location.replace(PawAuth.landingPage(current));
@@ -74,7 +75,7 @@
           form.elements.password.value = '';
           return;
         }
-        window.location.href = PawAuth.landingPage(user);
+        window.location.href = next || PawAuth.landingPage(user);
       });
     }());
   </script>

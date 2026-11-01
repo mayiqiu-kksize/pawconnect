@@ -16,16 +16,15 @@
   <script src="auth.js"></script>
   <script>
     (function () {
-      var user = PawAuth.requireLogin('staff');
+      var user = PawAuth.requireStaff();
       if (!user) return;
       var esc = PawAuth.escapeHtml;
-      var content = document.getElementById('staff-content');
-      content.innerHTML =
-        '<h1>Staff area – ' + esc(user.shelter) + '</h1>' +
-        '<p>Welcome, ' + esc(user.name) + '.</p>' +
+      document.getElementById('staff-content').innerHTML = '<h1>Staff area – ' + esc(user.shelter) + '</h1>' +
+        '<p>Welcome, ' + esc(user.name) + '. Use the staff menu to manage your shelter\'s work.</p>' +
         '<div class="steps staff-tools">' +
-        '<article><h3>Manage pet listings</h3><p>Add new pets and update their details and availability.</p><p class="muted">Coming soon</p></article>' +
-        '<article><h3>Adoption applications</h3><p>Review applications submitted to your shelter and update their status.</p><p class="muted">Coming soon</p></article>' +
+        '<article><h3><a href="staff-pets.html">Pet listings</a></h3><p>Add new pets and update their details and availability.</p></article>' +
+        '<article><h3><a href="staff-applications.html">Adoption applications</a></h3><p>Review applications submitted to your shelter and update their status.</p></article>' +
+        '<article><h3><a href="staff-enquiries.html">Enquiries</a></h3><p>Read and answer adopters\' questions about your pets.</p></article>' +
         '</div>';
     }());
   </script>

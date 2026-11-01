@@ -101,19 +101,67 @@
     return user && user.role === 'staff' ? 'staff.html' : 'account.html';
   }
 
-  // Sends visitors who are not logged in to the login page.
-  // A logged-in user with a different role is sent to their own page.
-  function requireLogin(role) {
+  // Sends visitors who are not logged in to the login page, remembering the page they wanted.
+  // A logged-in user with a different role is sent to their own page,
+  // or, with options.deny, shown an "Access denied" message instead (US18).
+  function requireLogin(role, options) {
     var user = getCurrentUser();
     if (!user) {
-      window.location.replace('login.html?reason=login-required');
+      var page = window.location.pathname.split('/').pop() || 'index.html';
+      window.location.replace('login.html?reason=login-required&next=' + encodeURIComponent(page + window.location.search));
       return null;
     }
     if (role && user.role !== role) {
-      window.location.replace(landingPage(user));
+      if (options && options.deny) {
+        showAccessDenied(user);
+      } else {
+        window.location.replace(landingPage(user));
+      }
       return null;
     }
     return user;
+  }
+
+  // US18: staff pages are only for shelter staff.
+  function requireStaff() {
+    return requireLogin('staff', { deny: true });
+  }
+
+  function showAccessDenied(user) {
+    document.title = 'Access denied | PawConnect';
+    var main = document.querySelector('main');
+    if (!main) return;
+    main.innerHTML = '<div class="empty-state access-denied" role="alert">' +
+      '<h1>Access denied</h1>' +
+      '<p>This page is only for shelter staff. You are logged in as ' + escapeHtml(user.name) + ' (adopter).</p>' +
+      '<a class="button" href="' + landingPage(user) + '">Go to My account</a></div>';
+  }
+
+  // Only local pages are accepted as a place to return to after logging in.
+  function safeNext(next) {
+    return /^[a-z-]+\.html(\?[\w=&%-]*)?$/i.test(next || '') ? next : '';
+  }
+
+  var STAFF_LINKS = [
+    ['staff.html', 'Overview'],
+    ['staff-pets.html', 'Pet listings'],
+    ['staff-applications.html', 'Applications'],
+    ['staff-enquiries.html', 'Enquiries']
+  ];
+
+  // US18: shelter staff see a staff menu under the header on every page.
+  function addStaffMenu() {
+    var header = document.querySelector('.site-header');
+    if (!header || document.querySelector('.staff-menu')) return;
+    var current = window.location.pathname.split('/').pop() || 'index.html';
+    var bar = document.createElement('nav');
+    bar.className = 'staff-menu';
+    bar.setAttribute('aria-label', 'Staff menu');
+    bar.innerHTML = '<div class="staff-menu-inner"><span class="staff-menu-label">Staff</span>' +
+      STAFF_LINKS.map(function (link) {
+        return '<a href="' + link[0] + '"' + (link[0] === current ? ' aria-current="page"' : '') + '>' + link[1] + '</a>';
+      }).join('') + '</div>';
+    header.insertAdjacentElement('afterend', bar);
   }
 
   function updateNav() {
@@ -131,6 +179,7 @@
       nav.appendChild(signupLink);
       return;
     }
+    if (user.role === 'staff') addStaffMenu();
     var home = document.createElement('a');
     home.href = landingPage(user);
     home.textContent = user.role === 'staff' ? 'Staff area' : 'My account';
@@ -156,6 +205,8 @@
     register: register,
     isValidEmail: isValidEmail,
     requireLogin: requireLogin,
+    requireStaff: requireStaff,
+    safeNext: safeNext,
     landingPage: landingPage,
     normaliseEmail: normaliseEmail,
     escapeHtml: escapeHtml
