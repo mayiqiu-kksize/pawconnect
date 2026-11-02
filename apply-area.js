@@ -2,20 +2,16 @@
   var area = document.getElementById('apply-area');
   if (!area || typeof pet === 'undefined') return;
 
-  var storageKey = 'pawconnectApplications';
   var isAvailable = pet.status === 'Available';
 
-  function getApplications() {
-    try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); }
-    catch (error) { return []; }
+  // US4: applications are kept in applications.js so shelter staff can review them.
+  // Visitors only see the applications made with their own email, never other people's.
+  function getApplications(email) {
+    return PawApps.forEmail(email).filter(function (application) { return application.petId === pet.id; });
   }
 
-  function saveApplications(applications) {
-    localStorage.setItem(storageKey, JSON.stringify(applications));
-  }
-
-  function renderSavedApplications() {
-    var applications = getApplications();
+  function renderSavedApplications(email) {
+    var applications = getApplications(email);
     var details = document.createElement('details');
     details.className = 'saved-applications';
     var summary = document.createElement('summary');
@@ -107,23 +103,31 @@
         valid = false;
       }
       if (!valid) return;
-      var applications = getApplications();
-      var application = {
+      var now = new Date().toISOString();
+      var user = window.PawAuth ? PawAuth.getCurrentUser() : null;
+      var application = PawApps.add({
         id: 'APP-' + String(Date.now()).slice(-6),
         petId: pet.id,
         petName: pet.name,
+        shelter: pet.shelter,
         applicant: form.elements.fullName.value.trim(),
+        email: form.elements.email.value.trim(),
+        // A logged-in adopter's applications are linked to their account (US8).
+        accountEmail: user && user.role === 'adopter' ? user.email : '',
+        phone: form.elements.phone.value.trim(),
+        suburb: form.elements.suburb.value.trim(),
+        message: form.elements.message.value.trim(),
+        status: 'Submitted',
+        submittedAt: now,
         consentGiven: true,
-        consentAt: new Date().toISOString()
-      };
-      applications.push(application);
-      saveApplications(applications);
+        consentAt: now
+      });
       area.innerHTML = '';
       var confirmation = document.createElement('p');
       confirmation.className = 'confirmation';
       confirmation.textContent = 'Application submitted successfully. Your confirmation number is ' + application.id + '.';
       area.appendChild(confirmation);
-      renderSavedApplications();
+      renderSavedApplications(application.accountEmail || application.email);
     });
     panel.appendChild(form);
     area.appendChild(panel);

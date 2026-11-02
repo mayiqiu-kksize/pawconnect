@@ -135,3 +135,17 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .pet-form .button { justify-self: start; border: 0; font: inherit; font-weight: 700; cursor: pointer; }
 .pet-form [aria-invalid="true"] { border-color: #a52121; }
 @media (max-width: 640px) { .pet-form { grid-template-columns: 1fr; } }
+
+/* US4: reviewing adoption applications */
+.app-status-submitted { background: #dceff7; color: #17324d; }
+.app-status-under-review { background: #fff0bd; color: #765200; }
+.app-status-approved { background: #d8f3e1; color: #17653a; }
+.app-status-declined { background: #f8dede; color: #8a1f1f; }
+.review-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+.review-grid .panel { margin-top: 1.25rem; }
+.review-subhead { margin: 1.25rem 0 .25rem; color: var(--navy); font-size: 1rem; }
+.status-form { display: grid; gap: .9rem; max-width: 420px; }
+.status-form label { display: grid; gap: .35rem; font-weight: 700; }
+.status-form select { padding: .65rem; border: 1px solid #aebbc4; border-radius: 6px; background: #fff; font: inherit; }
+.status-form .button { justify-self: start; margin-top: 0; border: 0; font: inherit; font-weight: 700; cursor: pointer; }
+@media (max-width: 640px) { .review-grid { grid-template-columns: 1fr; } }

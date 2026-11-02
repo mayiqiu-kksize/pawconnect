@@ -13,14 +13,94 @@
   </div></header>
   <main id="staff-content"></main>
   <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="data.js"></script>
+  <script src="applications.js"></script>
   <script src="auth.js"></script>
   <script>
     (function () {
       var user = PawAuth.requireStaff();
       if (!user) return;
-      var esc = PawAuth.escapeHtml;
-      document.getElementById('staff-content').innerHTML = '<h1>Adoption applications – ' + esc(user.shelter) + '</h1>' +
-        '<p class="muted">Reviewing applications is being built in Sprint 2 (US4).</p>';
+      var e = escapeText;
+      var content = document.getElementById('staff-content');
+      var params = new URLSearchParams(window.location.search);
+
+      function statusBadge(status) {
+        return '<span class="status app-status app-status-' + e(status).toLowerCase().replace(/\s+/g, '-') + '">' + e(status) + '</span>';
+      }
+
+      // US4 AC1: the list shows only applications submitted to this staff member's shelter.
+      function showList(message) {
+        var applications = PawApps.forShelter(user.shelter).sort(function (a, b) {
+          return String(b.submittedAt).localeCompare(String(a.submittedAt));
+        });
+        var rows = applications.map(function (item) {
+          return '<tr><td><a href="staff-applications.html?id=' + encodeURIComponent(item.id) + '">' + e(item.id) + '</a></td>' +
+            '<td>' + e(item.petName) + '</td><td>' + e(item.applicant) + '</td>' +
+            '<td>' + e(PawApps.formatDate(item.submittedAt)) + '</td><td>' + statusBadge(item.status) + '</td>' +
+            '<td><a class="table-action" href="staff-applications.html?id=' + encodeURIComponent(item.id) + '">Review</a></td></tr>';
+        }).join('');
+        content.innerHTML =
+          (message ? '<p class="notice" id="save-notice" role="status">' + e(message) + '</p>' : '') +
+          '<h1>Adoption applications – ' + e(user.shelter) + '</h1>' +
+          '<p class="muted">' + applications.length + ' application' + (applications.length === 1 ? '' : 's') + ' submitted to your shelter. Select one to review it and update its status.</p>' +
+          (rows ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Application</th><th>Pet</th><th>Applicant</th><th>Submitted</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+                : '<div class="empty-state">No applications have been submitted to your shelter yet.</div>');
+      }
+
+      function detailRow(label, value) {
+        return '<div><dt>' + label + '</dt><dd>' + e(value || '–') + '</dd></div>';
+      }
+
+      // US4 AC2 and AC3: applicant and pet details, and a status that can be changed and saved.
+      function showDetail(item) {
+        var pet = PETS.find(function (p) { return p.id === item.petId; }) || {};
+        content.innerHTML =
+          '<a class="back-link" href="staff-applications.html">← Back to applications</a>' +
+          '<div class="page-heading"><h1>Application ' + e(item.id) + '</h1>' + statusBadge(item.status) + '</div>' +
+          '<p class="muted">Submitted ' + e(PawApps.formatDate(item.submittedAt)) + ' for ' + e(item.petName) + '.</p>' +
+          '<div class="review-grid">' +
+          '<section class="panel"><h2>Applicant</h2><dl class="details">' +
+            detailRow('Name', item.applicant) + detailRow('Email', item.email) + detailRow('Phone', item.phone) + detailRow('Suburb', item.suburb) +
+          '</dl><h3 class="review-subhead">Why they want to adopt</h3><p>' + e(item.message || '–') + '</p></section>' +
+          '<section class="panel"><h2>Pet</h2><dl class="details">' +
+            detailRow('Name', pet.name || item.petName) + detailRow('Species', pet.species) + detailRow('Breed', pet.breed) + detailRow('Age', pet.age) +
+            detailRow('Listing status', pet.status) + detailRow('Shelter suburb', pet.suburb) +
+          '</dl>' + (pet.id ? '<a href="pet.html?id=' + encodeURIComponent(pet.id) + '">View the public profile</a>' : '') + '</section>' +
+          '</div>' +
+          '<form id="status-form" class="panel status-form" novalidate><h2>Decision</h2>' +
+          '<label for="app-status">Application status<select id="app-status" name="status">' +
+          PawApps.STATUSES.map(function (status) {
+            return '<option' + (status === item.status ? ' selected' : '') + '>' + status + '</option>';
+          }).join('') + '</select></label>' +
+          '<button class="button" type="submit">Save</button></form>';
+
+        document.getElementById('status-form').addEventListener('submit', function (event) {
+          event.preventDefault();
+          var status = event.target.elements.status.value;
+          var saved = PawApps.updateStatus(item.id, status);
+          if (!saved) return;
+          history.replaceState(null, '', 'staff-applications.html');
+          showList('The status of ' + saved.id + ' (' + saved.applicant + ', ' + saved.petName + ') has been saved as ' + saved.status + '.');
+        });
+      }
+
+      // US4 AC4: an application from another shelter is not shown.
+      function showDenied(id) {
+        document.title = 'Access denied | PawConnect';
+        content.innerHTML = '<div class="empty-state access-denied" role="alert"><h1>Access denied</h1>' +
+          '<p>Application ' + e(id) + ' was not submitted to ' + e(user.shelter) + ', so you cannot view it.</p>' +
+          '<a class="button" href="staff-applications.html">Back to your applications</a></div>';
+      }
+
+      var id = params.get('id');
+      if (id) {
+        var item = PawApps.byId(id);
+        if (item && item.shelter === user.shelter) { showDetail(item); return; }
+        if (item) { showDenied(id); return; }
+        showList('Application ' + id + ' could not be found.');
+        return;
+      }
+      showList('');
     }());
   </script>
 </body>
