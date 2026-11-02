@@ -13,6 +13,8 @@
   </div></header>
   <main id="account-content"></main>
   <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="data.js"></script>
+  <script src="applications.js"></script>
   <script src="auth.js"></script>
   <script>
     (function () {
@@ -27,9 +29,29 @@
         '<section class="panel"><h2>Account details</h2>' +
         '<dl class="details"><div><dt>Name</dt><dd>' + esc(user.name) + '</dd></div>' +
         '<div><dt>Email</dt><dd>' + esc(user.email) + '</dd></div></dl></section>' +
-        '<section class="panel"><h2>My applications</h2>' +
-        '<p class="muted">Coming soon: you will be able to track your adoption applications here.</p>' +
-        '<a class="button" href="browse.html">Browse Pets</a></section>';
+        myApplications();
+
+      // US8: an adopter sees each of their applications and the latest status set by the shelter.
+      function myApplications() {
+        var apps = PawApps.forEmail(user.email).sort(function (a, b) {
+          return String(b.submittedAt).localeCompare(String(a.submittedAt));
+        });
+        if (!apps.length) {
+          return '<section class="panel" id="my-applications"><h2>My applications</h2>' +
+            '<div class="empty-state">You have not applied for a pet yet. <a href="browse.html">Browse Pets</a> to find one and apply.</div></section>';
+        }
+        var rows = apps.map(function (item) {
+          var cls = 'app-status-' + String(item.status).toLowerCase().replace(/\s+/g, '-');
+          return '<tr><td><a href="pet.html?id=' + encodeURIComponent(item.petId) + '">' + esc(item.petName) + '</a></td>' +
+            '<td>' + esc(item.shelter) + '</td><td>' + esc(PawApps.formatDate(item.submittedAt)) + '</td>' +
+            '<td><span class="status ' + cls + '">' + esc(item.status) + '</span>' +
+            (item.statusUpdatedAt ? '<br><span class="muted small">Updated ' + esc(PawApps.formatDate(item.statusUpdatedAt)) + '</span>' : '') + '</td>' +
+            '<td>' + esc(item.id) + '</td></tr>';
+        }).join('');
+        return '<section class="panel" id="my-applications"><h2>My applications</h2>' +
+          '<p class="muted">The status is updated by the shelter as they review your application.</p>' +
+          '<div class="table-wrap"><table class="data-table"><thead><tr><th>Pet</th><th>Shelter</th><th>Submitted</th><th>Status</th><th>Reference</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>';
+      }
     }());
   </script>
 </body>

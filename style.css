@@ -149,3 +149,4 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .status-form select { padding: .65rem; border: 1px solid #aebbc4; border-radius: 6px; background: #fff; font: inherit; }
 .status-form .button { justify-self: start; margin-top: 0; border: 0; font: inherit; font-weight: 700; cursor: pointer; }
 @media (max-width: 640px) { .review-grid { grid-template-columns: 1fr; } }
+.small { font-size: .82rem; }
