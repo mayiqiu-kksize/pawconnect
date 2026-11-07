@@ -2,10 +2,25 @@
 (function () {
   var KEY = 'pawconnectEnquiries';
 
+  // Demo enquiries so shelter staff have something to answer in a fresh browser (US6).
+  var DEMO = [
+    { id: 'ENQ-200101', petId: 'p1', petName: 'Milo', shelter: 'Harbour Paws Rescue', name: 'Emily Chen', email: 'emily@pawconnect.test', accountEmail: 'emily@pawconnect.test', message: 'Is Milo used to living with children? I have a niece who visits most weekends.', sentAt: '2026-11-05T11:20:00+11:00', consentGiven: true, replies: [] },
+    { id: 'ENQ-200102', petId: 'p3', petName: 'Sunny', shelter: 'Western Sydney Animal Care', name: 'Priya Shah', email: 'priya.shah@example.com', accountEmail: '', message: 'How much exercise does Sunny need each day?', sentAt: '2026-11-06T09:40:00+11:00', consentGiven: true, replies: [] }
+  ];
+
   function getAll() {
     var list;
     try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (error) { list = []; }
-    return Array.isArray(list) ? list : [];
+    if (!Array.isArray(list)) list = [];
+    // Add the demo enquiries once, also in browsers that already saved enquiries for US5.
+    if (localStorage.getItem(KEY + 'Demo') !== '1') {
+      DEMO.forEach(function (demo) {
+        if (!list.some(function (item) { return item.id === demo.id; })) list.push(JSON.parse(JSON.stringify(demo)));
+      });
+      saveAll(list);
+      localStorage.setItem(KEY + 'Demo', '1');
+    }
+    return list;
   }
 
   function saveAll(list) {

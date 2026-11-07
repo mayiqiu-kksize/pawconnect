@@ -13,14 +13,100 @@
   </div></header>
   <main id="staff-content"></main>
   <footer class="site-footer"><div class="footer-inner">PawConnect prototype – Team 10 · <a href="privacy.html">Privacy</a></div></footer>
+  <script src="data.js"></script>
+  <script src="enquiries.js"></script>
   <script src="auth.js"></script>
   <script>
     (function () {
       var user = PawAuth.requireStaff();
       if (!user) return;
-      var esc = PawAuth.escapeHtml;
-      document.getElementById('staff-content').innerHTML = '<h1>Enquiries – ' + esc(user.shelter) + '</h1>' +
-        '<p class="muted">Answering enquiries is planned for Sprint 3 (US6).</p>';
+      var e = escapeText;
+      var content = document.getElementById('staff-content');
+      var params = new URLSearchParams(window.location.search);
+
+      function answeredBadge(item) {
+        var answered = item.replies && item.replies.length;
+        return '<span class="status ' + (answered ? 'app-status-approved' : 'app-status-under-review') + '">' + (answered ? 'Answered' : 'Awaiting reply') + '</span>';
+      }
+
+      // US6 AC1: the list shows only enquiries sent to this staff member's shelter, newest first.
+      function showList(message) {
+        var enquiries = PawEnquiries.forShelter(user.shelter).sort(function (a, b) {
+          return String(b.sentAt).localeCompare(String(a.sentAt));
+        });
+        var rows = enquiries.map(function (item) {
+          var link = 'staff-enquiries.html?id=' + encodeURIComponent(item.id);
+          return '<tr><td><a href="' + link + '">' + e(item.id) + '</a></td>' +
+            '<td>' + e(item.petName) + '</td><td>' + e(item.name) + '</td>' +
+            '<td>' + e(PawEnquiries.formatDate(item.sentAt)) + '</td><td>' + answeredBadge(item) + '</td>' +
+            '<td><a class="table-action" href="' + link + '">Open</a></td></tr>';
+        }).join('');
+        content.innerHTML =
+          (message ? '<p class="notice" id="save-notice" role="status">' + e(message) + '</p>' : '') +
+          '<h1>Enquiries – ' + e(user.shelter) + '</h1>' +
+          '<p class="muted">' + enquiries.length + ' enquir' + (enquiries.length === 1 ? 'y' : 'ies') + ' sent to your shelter. Open one to read it and reply.</p>' +
+          (rows ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Enquiry</th><th>Pet</th><th>From</th><th>Sent</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+                : '<div class="empty-state">No enquiries have been sent to your shelter yet.</div>');
+      }
+
+      function detailRow(label, value) {
+        return '<div><dt>' + label + '</dt><dd>' + e(value || '–') + '</dd></div>';
+      }
+
+      // US6 AC2 and AC3: the message with the pet's details, and a reply that is saved for the adopter.
+      function showDetail(item) {
+        var pet = PETS.find(function (p) { return p.id === item.petId; }) || {};
+        var replies = (item.replies || []).map(function (reply) {
+          return '<li class="reply"><p class="reply-meta">' + e(reply.by) + ', ' + e(PawEnquiries.formatDate(reply.sentAt)) + '</p><p>' + e(reply.text) + '</p></li>';
+        }).join('');
+        content.innerHTML =
+          '<a class="back-link" href="staff-enquiries.html">← Back to enquiries</a>' +
+          '<div class="page-heading"><h1>Enquiry ' + e(item.id) + '</h1>' + answeredBadge(item) + '</div>' +
+          '<p class="muted">Sent ' + e(PawEnquiries.formatDate(item.sentAt)) + ' about ' + e(item.petName) + '.</p>' +
+          '<div class="review-grid">' +
+          '<section class="panel"><h2>Message</h2><dl class="details">' +
+            detailRow('From', item.name) + detailRow('Email', item.email) +
+          '</dl><h3 class="review-subhead">Question</h3><p id="enquiry-message">' + e(item.message) + '</p></section>' +
+          '<section class="panel"><h2>Pet</h2><dl class="details">' +
+            detailRow('Name', pet.name || item.petName) + detailRow('Species', pet.species) + detailRow('Breed', pet.breed) + detailRow('Age', pet.age) +
+            detailRow('Listing status', pet.status) + detailRow('Shelter suburb', pet.suburb) +
+          '</dl>' + (pet.id ? '<a href="pet.html?id=' + encodeURIComponent(pet.id) + '">View the public profile</a>' : '') + '</section>' +
+          '</div>' +
+          (replies ? '<section class="panel"><h2>Replies sent</h2><ul class="reply-list">' + replies + '</ul></section>' : '') +
+          '<form id="reply-form" class="panel status-form reply-form" novalidate><h2>Reply to ' + e(item.name) + '</h2>' +
+          '<label for="reply-text">Your reply<textarea id="reply-text" name="reply" rows="5"></textarea></label>' +
+          '<span class="field-error" id="reply-error"></span>' +
+          '<button class="button" type="submit">Send reply</button></form>';
+
+        document.getElementById('reply-form').addEventListener('submit', function (event) {
+          event.preventDefault();
+          var text = event.target.elements.reply.value.trim();
+          var error = document.getElementById('reply-error');
+          if (!text) { error.textContent = 'Please write a reply before sending.'; event.target.elements.reply.focus(); return; }
+          var saved = PawEnquiries.addReply(item.id, { by: user.name + ' (' + user.shelter + ')', text: text, sentAt: new Date().toISOString() });
+          if (!saved) return;
+          history.replaceState(null, '', 'staff-enquiries.html');
+          showList('Your reply to ' + saved.name + ' about ' + saved.petName + ' (' + saved.id + ') has been saved and is now available to the adopter.');
+        });
+      }
+
+      // Staff cannot open an enquiry sent to another shelter.
+      function showDenied(id) {
+        document.title = 'Access denied | PawConnect';
+        content.innerHTML = '<div class="empty-state access-denied" role="alert"><h1>Access denied</h1>' +
+          '<p>Enquiry ' + e(id) + ' was not sent to ' + e(user.shelter) + ', so you cannot view it.</p>' +
+          '<a class="button" href="staff-enquiries.html">Back to your enquiries</a></div>';
+      }
+
+      var id = params.get('id');
+      if (id) {
+        var item = PawEnquiries.byId(id);
+        if (item && item.shelter === user.shelter) { showDetail(item); return; }
+        if (item) { showDenied(id); return; }
+        showList('Enquiry ' + id + ' could not be found.');
+        return;
+      }
+      showList('');
     }());
   </script>
 </body>

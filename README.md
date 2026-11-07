@@ -23,6 +23,7 @@ This is a prototype. Accounts, passwords and the login session are stored in the
 - staff.html, staff-pets.html, staff-applications.html, staff-enquiries.html – staff area with a staff menu (US18). Adopters who open these pages see "Access denied"; visitors are sent to Log in and returned to the page afterwards
 - staff-pets.html – shelter staff add new pets and edit details and status for their own shelter (US3). Saved changes are stored in this browser and appear on Browse Pets and the pet profiles; pets set to Adopted leave Browse Pets and no longer accept applications. To reset the demo pets, clear this site's data in the browser
 - staff-applications.html – shelter staff review the applications submitted to their shelter, see the applicant's and pet's details, and change the status (Submitted, Under Review, Approved, Declined) (US4). Three demo applications are added in a fresh browser; staff cannot open an application from another shelter (try staff-applications.html?id=APP-100103)
+- staff-enquiries.html – shelter staff see the enquiries sent to their shelter, open one to read the question with the pet's details, and send a reply that is saved for the adopter (US6). Two demo enquiries are added in a fresh browser; staff cannot open an enquiry sent to another shelter (try staff-enquiries.html?id=ENQ-200102)
 - signup.html – create a new adopter account (US16); the new account is saved in this browser and logged in straight away
 - privacy.html – Privacy Policy (linked from the application form and the footer)
 

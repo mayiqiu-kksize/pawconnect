@@ -158,3 +158,12 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .button-secondary:hover, .button-secondary:focus { background: #eef2f6; }
 .form-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
 .enquiry-area .application-panel { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* US6: staff read and answer enquiries */
+.reply-form { max-width: none; }
+.reply-form textarea { width: 100%; padding: .65rem; border: 1px solid #aebbc4; border-radius: 6px; font: inherit; font-weight: 400; }
+.reply-list { list-style: none; margin: 0; padding: 0; }
+.reply { padding: .75rem 0; border-top: 1px solid #e3e0da; }
+.reply:first-child { border-top: 0; }
+.reply p { margin: 0; }
+.reply-meta { color: var(--muted); font-size: .85rem; margin-bottom: .25rem !important; }
