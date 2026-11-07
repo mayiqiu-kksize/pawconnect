@@ -150,3 +150,11 @@ h2 { margin: 0 0 1.5rem; color: var(--navy); }
 .status-form .button { justify-self: start; margin-top: 0; border: 0; font: inherit; font-weight: 700; cursor: pointer; }
 @media (max-width: 640px) { .review-grid { grid-template-columns: 1fr; } }
 .small { font-size: .82rem; }
+
+/* US5: enquiry to the shelter on the pet profile */
+.enquiry-area { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #e3e0da; }
+.enquiry-prompt { margin: 0 0 .5rem; }
+.button-secondary { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+.button-secondary:hover, .button-secondary:focus { background: #eef2f6; }
+.form-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+.enquiry-area .application-panel { margin-top: 0; padding-top: 0; border-top: 0; }

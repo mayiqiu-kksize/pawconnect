@@ -40,7 +40,7 @@
       var counter = photos.length > 1 ? '<p class="gallery-counter" id="gallery-counter">Photo 1 of ' + photos.length + '</p>' : '';
       var gallery = '<div class="gallery"><img class="profile-photo" id="main-photo" alt="' + e(pet.name) + ' – photo 1 of ' + photos.length + '" src="' + e(photos[0]) + '">' + counter + thumbs + '</div>';
 
-      content.innerHTML = '<a class="back-link" href="browse.html">← Back to pets</a><article class="profile">' + gallery + '<div><div class="profile-heading"><h1>' + e(pet.name) + '</h1><span class="status status-' + pet.status.toLowerCase() + '">' + e(pet.status) + '</span></div><dl class="details">' + details + '</dl><p class="description">' + e(pet.description) + '</p><div id="apply-area"></div></div></article>';
+      content.innerHTML = '<a class="back-link" href="browse.html">← Back to pets</a><article class="profile">' + gallery + '<div><div class="profile-heading"><h1>' + e(pet.name) + '</h1><span class="status status-' + pet.status.toLowerCase() + '">' + e(pet.status) + '</span></div><dl class="details">' + details + '</dl><p class="description">' + e(pet.description) + '</p><div id="apply-area"></div><div id="enquiry-area" class="enquiry-area"></div></div></article>';
 
       var main = document.getElementById('main-photo');
       main.onerror = function () { placeholder(this, pet.name); };
@@ -59,5 +59,7 @@
   <script src="applications.js"></script>
   <script src="apply-area.js"></script>
   <script src="auth.js"></script>
+  <script src="enquiries.js"></script>
+  <script src="enquiry-area.js"></script>
 </body>
 </html>
